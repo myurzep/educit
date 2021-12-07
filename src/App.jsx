@@ -13,13 +13,19 @@ function App() {
     dispatch(fetchDataAction());
   };
 
+  console.log(state.fetchData);
+
   return (
     <div>
       <button onClick={fetchDataHandler}>получить данные</button>
       <hr />
       {state.fetchDataLoading && <div>loading...</div>}
       {state.fetchData && !state.fetchDataLoading && (
-        <div>{state.fetchData.title}</div>
+        <ul>
+          {state.fetchData.map((el, i) => (
+            <li key={el.id}>{el.title}</li>
+          ))}
+        </ul>
       )}
       {state.fetchDataError && state.fetchDataLoading && <div>error!</div>}
     </div>

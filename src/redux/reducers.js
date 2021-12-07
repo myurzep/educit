@@ -7,7 +7,7 @@ import {
 const initialState = {
   fetchDataLoading: false,
   fetchDataError: null,
-  fetchData: {},
+  fetchData: [],
 };
 
 export const reducer = (state = initialState, action) => {
@@ -31,6 +31,7 @@ export const reducer = (state = initialState, action) => {
         fetchData: action.payload,
       };
     }
+
     default:
       return state;
   }
