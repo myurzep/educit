@@ -1,34 +1,54 @@
 import React from "react";
+import io from "socket.io-client";
 
-import { useDispatch, useSelector } from "react-redux";
+import { Box, Grid, TextField, Button } from "@mui/material";
 
-import { fetchDataAction } from "./redux/actions";
+const socket = io("ws://localhost:8080");
 
 function App() {
-  const dispatch = useDispatch();
+  const [messages, setMessages] = React.useState([]);
+  const [text, setText] = React.useState("");
 
-  const state = useSelector((state) => state);
+  React.useEffect(() => {
+    if (socket) {
+      socket.on("CHAT", (msg) => {
+        console.log("get msg: " + msg);
+        setMessages((prevState) => [...prevState, msg]);
+        // тут почему-то мы получем пустой массив в переменной messages
+      });
+    }
+  }, [socket]);
 
-  const fetchDataHandler = () => {
-    dispatch(fetchDataAction());
+  const inputTextHandler = (e) => {
+    setText(e.target.value);
   };
 
-  console.log(state.fetchData);
+  const chatSendHandler = (e) => {
+    if (text !== "") {
+      socket.emit("CHAT", text);
+      setText("");
+    }
+  };
 
   return (
-    <div>
-      <button onClick={fetchDataHandler}>получить данные</button>
+    <Box
+      sx={{
+        fontSize: "20px",
+      }}
+    >
+      <Grid container spacing={2} direction="column">
+        {messages.map((message, i) => (
+          <Grid item key={i}>
+            {message}
+          </Grid>
+        ))}
+      </Grid>
       <hr />
-      {state.fetchDataLoading && <div>loading...</div>}
-      {state.fetchData && !state.fetchDataLoading && (
-        <ul>
-          {state.fetchData.map((el, i) => (
-            <li key={el.id}>{el.title}</li>
-          ))}
-        </ul>
-      )}
-      {state.fetchDataError && state.fetchDataLoading && <div>error!</div>}
-    </div>
+      <TextField value={text} onChange={inputTextHandler} variant="outlined" />
+      <Button onClick={chatSendHandler} variant="outlined">
+        send
+      </Button>
+    </Box>
   );
 }
 
